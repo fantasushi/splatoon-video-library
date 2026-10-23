@@ -172,7 +172,7 @@ textarea {
 /* 선택한 룰에 영상이 없는 맵은 썸네일 채도, 밝기 수정 */
 /* 검색용 맵 선택 목록에서만 채도와 밝기 효과 적용 */
 #searchMapOptions .option-item.zero-count .thumbnail {
-  filter: saturate(2%) brightness(140%);
+  filter: saturate(4%) brightness(140%);
 }
 
 /* 기본 썸네일과 룰 썸네일은 30px 유지 */
@@ -404,11 +404,11 @@ const PERSONAL_KEY = "personalVideos";
 const PUBLIC_TOGGLE_KEY = "includePublicVideosEnabled";
 
 // 마지막으로 선택한 공용 영상 표시 설정을 불러옵니다.
-// 저장된 설정이 없으면 기본값은 꺼짐(false)입니다.
+// 저장된 설정이 없으면 기본값은 켜짐입니다.
 function initPublicToggle(){
   const checkbox = document.getElementById("includePublicVideos");
   const savedSetting = localStorage.getItem(PUBLIC_TOGGLE_KEY);
-  checkbox.checked = savedSetting === null ? false : savedSetting === "true";
+  checkbox.checked = savedSetting === null ? true : savedSetting === "true";
 }
 
 function onPublicToggleChange(){
