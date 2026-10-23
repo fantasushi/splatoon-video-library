@@ -167,8 +167,9 @@ textarea {
 }
 
 /* 선택한 룰에 영상이 없는 맵은 썸네일 채도, 밝기 수정 */
-.option-item.zero-count .thumbnail {
-  filter: saturate(3%) brightness(120%);
+/* 검색용 맵 선택 목록에서만 채도와 밝기 효과 적용 */
+#searchMapOptions .option-item.zero-count .thumbnail {
+  filter: saturate(2%) brightness(140%);
 }
 
 /* 기본 썸네일과 룰 썸네일은 30px 유지 */
