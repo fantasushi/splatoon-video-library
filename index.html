@@ -1,0 +1,494 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>슾3랭커 영상 검색기</title>
+<link rel="icon" type="image/png" href="images/logo.png">
+
+<style>
+h1 {
+  font-family: 'Verdana', cursive;
+  font-size: 30px;
+  color: #5C4033;
+}
+
+body {
+  font-family: Arial;
+  background-color: #f5f5f5;
+}
+
+.subtitle {
+  font-size: 10px;
+  color: white;
+  margin-left: 1px;
+}
+
+textarea {
+  resize: none;
+  overflow-y: auto;
+  padding: 25px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  width: 300px;
+}
+
+.section-box {
+  background: white;
+  padding: 1px 5px 25px 15px;
+  margin-bottom: 15px;
+  border-radius: 12px;
+  box-shadow: 2px 2px 10px 2px rgba(0,0,0,0.2);
+  width: 350px;
+}
+
+.dropdown {
+  position: relative;
+  width: 260px;
+  margin-bottom: 10px;
+}
+
+.selected {
+  border: 1px solid #ccc;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: white;
+  cursor: pointer;
+  border-radius: 8px;
+}
+
+.options {
+  display: none;
+  border: 1px solid #ccc;
+  position: absolute;
+  background: white;
+  width: 100%;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1000;
+  border-radius: 8px;
+}
+
+.option-item {
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.option-item:hover {
+  background: #eee;
+}
+
+.option-item.zero-count {
+  color: #aaa;
+}
+
+.thumbnail {
+  width: 30px;
+  height: 30px;
+  object-fit: cover;
+  border-radius: 6px;
+}
+
+.map-offset {
+  margin-left: 30px;
+  font-size: 14px;
+}
+
+button {
+  padding: 12px 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background-color: #555555;
+  color: white;
+  font-size: 12px;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+input[type="text"] {
+  padding: 25px 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  width: 300px;
+  margin-top: 5px;
+}
+
+#deleteSection {
+  background: white;
+  padding: 15px;
+  margin-top: 5px;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+  width: 320px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>★ 룰/맵별 영상URL 검색기 ★</h1>
+
+<div class="section-box">
+  <h2>* 영상 검색 (공용 라이브러리 + 내 저장 목록) *</h2>
+  <div id="searchRuleDropdown" class="dropdown"></div>
+  <div id="searchMapDropdown" class="dropdown map-offset"></div>
+  <div id="result">룰과 맵을 선택하여 검색하세요.</div>
+</div>
+
+<div class="section-box">
+  <h2>* 개인 URL 등록 *</h2>
+  <div id="ruleDropdown" class="dropdown"></div>
+  <div id="map1Dropdown" class="dropdown map-offset"></div>
+  <div id="map2Dropdown" class="dropdown map-offset"></div>
+
+  <textarea id="url" placeholder="영상 URL 입력" rows="3"></textarea>
+  <br><br>
+  <button onclick="saveVideo()" style="background-color:#FFF9C4; color:black; border:2px solid black;">💾 저장</button>
+</div>
+
+<p id="count"></p>
+
+<button onclick="toggleDeleteList()">💩 내 URL 삭제하기</button>
+<div id="deleteSection" style="display:none;"></div><br><br><br>
+
+<hr>
+
+<button onclick="exportData()" style="background-color:#d3d3d3;">📤 내 URL 백업하기</button>
+<br><br>
+📩 내 URL 백업 가져오기 (병합)<br>
+<input type="file" id="importFile" accept=".json" onchange="importData(event)"><br>
+<span class="subtitle">(제작_오렌지징어 잉클링갤러리)</span>
+
+<script>
+const rules = ["에어리어","랭크 타워","랭크 피시","바지락"];
+const maps = [
+"거미게 경제특구","고등어 해협대교","과메기 온천","광어 해운",
+"나메로우 금속","남플라 유적","넙치 언덕단지","다시마 트랙",
+"대구포트 쇼핑파크","대치 시장","데카라인 고가밑","도미 미술관",
+"만새기 리조트&스파","만타 마리아호","맛조개 방수로","메기 지구",
+"석순 대협곡","수랑정","용궁 터미널","참치 탄광",
+"철갑상어 조선소","청새치 공항","초밥 월드",
+"해녀 미술대학","혹등 마켓"
+];
+
+let selected = {
+  rule: rules[0],
+  map1: maps[0],
+  map2: maps[0],
+  searchRule: rules[0],
+  searchMap: maps[0]
+};
+
+/* ---------------- 공용 라이브러리 + 개인 저장소 ---------------- */
+const PERSONAL_KEY = "personalVideos";
+let publicVideos = [];
+function getPersonalVideos(){
+  try { return JSON.parse(localStorage.getItem(PERSONAL_KEY)) || []; }
+  catch { return []; }
+}
+function savePersonalVideos(videos){
+  localStorage.setItem(PERSONAL_KEY, JSON.stringify(videos));
+}
+function getAllVideos(){
+  return [...publicVideos, ...getPersonalVideos()];
+}
+async function loadPublicVideos(){
+  try {
+    const response = await fetch("./public-videos.json");
+    if (!response.ok) throw new Error("공용 데이터 파일을 불러오지 못했습니다.");
+    const data = await response.json();
+    publicVideos = Array.isArray(data) ? data.map(v => ({...v, source: "public"})) : [];
+  } catch (error) {
+    console.error(error);
+    publicVideos = [];
+    document.getElementById("result").innerHTML = "공용 라이브러리를 불러오지 못했습니다. public-videos.json 파일을 확인하세요.";
+  }
+  refreshAllMapDropdowns();
+  searchVideo();
+  updateCount();
+}
+
+/* ---------------- 카운트 계산 ---------------- */
+function getMapCount(rule, map){
+  return getAllVideos().filter(v=>v.rule===rule && v.map===map).length;
+}
+
+/* ---------------- 드롭다운 생성 ---------------- */
+function createDropdown(id, dataArray) {
+  const container = document.getElementById(id + "Dropdown");
+
+  container.innerHTML = `
+    <div class="selected" onclick="toggleDropdown('${id}')">
+      <img class="thumbnail" id="${id}Img" src="images/${dataArray[0]}.png">
+      <span id="${id}Text">${dataArray[0]}</span>
+    </div>
+    <div class="options" id="${id}Options"></div>
+  `;
+
+  renderOptions(id, dataArray);
+}
+
+function renderOptions(id, dataArray){
+  const optionsDiv = document.getElementById(id + "Options");
+  optionsDiv.innerHTML = "";
+
+  dataArray.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "option-item";
+
+    let count = 0;
+    let ruleForCount = null;
+
+    if(id.includes("searchMap")){
+      ruleForCount = selected.searchRule;
+    }else if(id.includes("map")){
+      ruleForCount = selected.rule;
+    }
+
+    if(ruleForCount){
+      count = getMapCount(ruleForCount, item);
+      if(count === 0){
+        div.classList.add("zero-count");
+      }
+    }
+
+    div.innerHTML = `
+      <img class="thumbnail" src="images/${item}.png">
+      <span>${item}${ruleForCount ? ` (${count})` : ""}</span>
+    `;
+
+    div.onclick = () => {
+      selected[id] = item;
+      document.getElementById(id + "Text").innerText = item;
+      document.getElementById(id + "Img").src = `images/${item}.png`;
+      optionsDiv.style.display = "none";
+
+      if(id === "rule"){
+        renderOptions("map1", maps);
+        renderOptions("map2", maps);
+      }
+
+      if(id === "searchRule"){
+        renderOptions("searchMap", maps);
+        searchVideo();
+      }
+
+      if(id === "searchMap"){
+        searchVideo();
+      }
+    };
+    optionsDiv.appendChild(div);
+  });
+}
+
+function refreshAllMapDropdowns(){
+  renderOptions("map1", maps);
+  renderOptions("map2", maps);
+  renderOptions("searchMap", maps);
+}
+
+function toggleDropdown(id) {
+  const el = document.getElementById(id + "Options");
+  el.style.display = el.style.display === "block" ? "none" : "block";
+}
+
+document.addEventListener("click", function(e){
+  if(!e.target.closest(".dropdown")){
+    document.querySelectorAll(".options").forEach(o=>o.style.display="none");
+  }
+});
+
+/* ---------------- 초기 생성 ---------------- */
+createDropdown("rule", rules);
+createDropdown("map1", maps);
+createDropdown("map2", maps);
+createDropdown("searchRule", rules);
+createDropdown("searchMap", maps);
+refreshAllMapDropdowns();
+loadPublicVideos();
+
+/* ---------------- 저장 ---------------- */
+function saveVideo() {
+  const rule = selected.rule;
+  const map1 = selected.map1;
+  const map2 = selected.map2;
+  const url = document.getElementById("url").value.trim();
+
+  if (!url) { alert("URL을 입력하세요"); return; }
+  if (map1 === map2) { alert("서로 다른 맵 2개를 선택해주세요."); return; }
+
+  const videos = getPersonalVideos();
+  const createdAt = new Date().toISOString();
+
+  videos.push({ rule, map: map1, url, createdAt });
+  videos.push({ rule, map: map2, url, createdAt });
+
+  savePersonalVideos(videos);
+
+  refreshAllMapDropdowns();
+  document.getElementById("url").value = "";
+  updateCount();
+
+  const countEl = document.getElementById("count");
+  const exclamation = document.createElement("span");
+  exclamation.innerText = " 🦑🦑🦑🦑🦑🦑🦑🦑🦑🦑🦑🦑";
+  countEl.appendChild(exclamation);
+  setTimeout(() => countEl.removeChild(exclamation), 1500);
+
+  renderDeleteList();
+}
+
+/* ---------------- 검색 ---------------- */
+function searchVideo(){
+  const searchRule = selected.searchRule;
+  const searchMap = selected.searchMap;
+  const videos = getAllVideos();
+
+  const filtered = videos
+    .filter(v => v.rule === searchRule && v.map === searchMap)
+    .sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
+
+  const resultDiv = document.getElementById("result");
+  resultDiv.innerHTML = "";
+
+  if(filtered.length === 0){
+    resultDiv.innerHTML = "<p>검색 결과가 없습니다.</p>";
+    return;
+  }
+
+  let index = 1;
+  filtered.forEach(v=>{
+    // URL과 설명 분리
+    const parts = v.url.split(" ");
+    const mainUrl = parts[0];
+    const description = parts.slice(1).join(" "); // URL 뒤 텍스트
+
+    resultDiv.innerHTML += `
+      <p>
+        ${index++}) 
+        <a href="${mainUrl}" target="_blank">${mainUrl}</a> 
+        <span style="color:black;">${description}</span>
+      </p>
+    `;
+  });
+}
+
+function toggleDeleteList(){
+  const section = document.getElementById("deleteSection");
+  section.style.display = section.style.display === "none" ? "block" : "none";
+  renderDeleteList();
+}
+
+function renderDeleteList(){
+  const videos = getPersonalVideos();
+  const section = document.getElementById("deleteSection");
+  section.innerHTML = "";
+
+  if(videos.length === 0){
+    section.innerHTML = "개인적으로 저장한 URL이 없습니다. 공용 라이브러리의 URL은 여기서 삭제할 수 없습니다.";
+    return;
+  }
+
+  // 전체 삭제 버튼
+  section.innerHTML += `<button onclick="deleteAll()" style="background-color:red;">💀💀 전체 삭제 💀💀</button><hr>`;
+
+  // 최근 등록순 정렬
+  const sortedVideos = videos.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
+
+  let toggleColor = false;
+  let prevUrl = "";
+
+  sortedVideos.forEach((v, index)=>{
+    // URL이 바뀌면 색상 토글
+    if(v.url !== prevUrl){
+      toggleColor = !toggleColor;
+      prevUrl = v.url;
+    }
+
+    const bgColor = toggleColor ? "#e4e4e4" : "#ffffff"; // 두 가지 색상 번갈아
+
+    section.innerHTML += `
+      <p style="background-color:${bgColor}; padding:5px; border-radius:4px;">
+        [ ${v.rule} - ${v.map} ] <a href="${v.url}" target="_blank">${v.url}</a><br>
+        <small>${new Date(v.createdAt).toLocaleString()}</small><br>
+        <button onclick="deleteUrl('${v.url}')">삭제</button>
+      </p><hr>
+    `;
+  });
+}
+function deleteUrl(url){
+  let videos = getPersonalVideos();
+  videos = videos.filter(v=>v.url !== url);
+  savePersonalVideos(videos);
+  renderDeleteList();
+  updateCount();
+  searchVideo();
+}
+
+function deleteAll(){
+  if(confirm("정말 모든 URL을 삭제하시겠습니까?")){
+    localStorage.removeItem(PERSONAL_KEY);
+    renderDeleteList();
+    updateCount();
+    searchVideo();
+  }
+}
+
+/* ------------------- Export / Import ------------------- */
+function exportData(){
+  const data = JSON.stringify(getPersonalVideos(), null, 2);
+  const blob = new Blob([data], {type: "application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "personal-videos-backup.json";
+  a.click();
+}
+
+function importData(event){
+  const file = event.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const parsed = JSON.parse(e.target.result);
+      if (!Array.isArray(parsed)) throw new Error("JSON 데이터는 배열이어야 합니다.");
+      const existing = getPersonalVideos();
+      const merged = [...existing, ...parsed.map(v => ({...v, source: undefined}))];
+      savePersonalVideos(merged);
+      updateCount();
+      renderDeleteList();
+      alert("데이터 불러오기 완료!");
+    }catch{
+      alert("올바른 JSON 파일이 아닙니다.");
+    }
+  };
+  reader.readAsText(file);
+}
+
+/* ------------------- 카운트 업데이트 ------------------- */
+function updateCount() {
+  const personalCount = getPersonalVideos().length;
+  document.getElementById("count").innerText =
+    `* 영상 URL 총 개수 : ${getAllVideos().length} (공용 ${publicVideos.length} / 개인 ${personalCount})`;
+}
+
+document.getElementById("url").addEventListener("keydown", function(e) {
+  if (e.key === "Enter" && !e.shiftKey) {
+    e.preventDefault();
+    saveVideo();
+  }
+});
+
+updateCount();
+</script>
+
+</body>
+</html>
