@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>스플래툰 영상URL 검색</title>
 <link rel="icon" type="image/png" href="images/logo.png">
 
@@ -132,8 +133,10 @@ textarea {
   gap: 8px;
 }
 
-/* 맵 선택 메뉴만 5열, 썸네일 아래에 맵 이름 표시 */
-.map-options {
+/* 맵 선택 메뉴는 버튼을 기준으로 가로 중앙에 표시 */
+.options.map-options {
+  left: 50%;
+  transform: translateX(-50%);
   grid-template-columns: repeat(5, minmax(0, 1fr));
   column-gap: 8px;
   row-gap: 10px;
@@ -288,18 +291,45 @@ input[type="text"] {
   text-align: left;
 }
 
+/* 화면 폭에 따라 맵 선택 열 수를 단계적으로 줄임 */
+@media (max-width: 1200px) {
+  .options.map-options {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 900px) {
+  .options.map-options {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+/* 모바일 기본: 화면 폭에 맞춰 3열 표시 */
 @media (max-width: 720px) {
-  .map-options {
-    width: min(92vw, 340px);
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    column-gap: 8px;
+  .options.map-options {
+    width: min(92vw, 820px);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    column-gap: 6px;
     row-gap: 10px;
   }
 
   .map-options .thumbnail {
-    width: 120px;
-    height: 120px;
-    flex-basis: 120px;
+    width: clamp(72px, 24vw, 120px);
+    height: clamp(72px, 24vw, 120px);
+    flex-basis: clamp(72px, 24vw, 120px);
+  }
+}
+
+/* 폭이 아주 좁은 모바일 화면에서는 2열로 전환 */
+@media (max-width: 380px) {
+  .options.map-options {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .map-options .thumbnail {
+    width: clamp(90px, 30vw, 110px);
+    height: clamp(90px, 30vw, 110px);
+    flex-basis: clamp(90px, 30vw, 110px);
   }
 }
 </style>
