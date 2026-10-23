@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>스플래툰 영상URL 검색</title>
+<title>스플래툰3 룰/맵 영상검색</title>
 <link rel="icon" type="image/png" href="images/logo.png">
 
 <style>
 h1 {
   font-family: 'Verdana', cursive;
-  font-size: 30px;
+  font-size: 24px;
   color: #5C4033;
 }
 
@@ -172,7 +172,7 @@ textarea {
 /* 선택한 룰에 영상이 없는 맵은 썸네일 채도, 밝기 수정 */
 /* 검색용 맵 선택 목록에서만 채도와 밝기 효과 적용 */
 #searchMapOptions .option-item.zero-count .thumbnail {
-  filter: saturate(2%) brightness(140%);
+  filter: saturate(4%) brightness(140%);
 }
 
 /* 기본 썸네일과 룰 썸네일은 30px 유지 */
@@ -337,7 +337,7 @@ input[type="text"] {
 
 <body>
 
-<h1>★ 룰/맵 별 영상 URL 검색기 ★</h1>
+<h1>룰/맵 영상 검색기 ★</h1>
 
 <div class="title-meta-row">
   <span class="subtitle">(제작_오렌지징어 잉클링갤러리)</span>
@@ -353,19 +353,6 @@ input[type="text"] {
   <h2> 🔎 검색하기 </h2>
   <div id="searchRuleDropdown" class="dropdown"></div>
   <div id="searchMapDropdown" class="dropdown map-offset"></div>
-  <details id="youtubeApiSettings" style="margin:12px 0; text-align:left;">
-    <summary style="cursor:pointer; font-weight:bold;">⚙️ 유튜브 채널 닉네임 자동 표시 설정</summary>
-    <div style="margin-top:10px; padding:12px; border:1px solid #ccc; border-radius:8px; background:#fafafa;">
-      <label for="youtubeApiKey" style="display:block; margin-bottom:6px;">YouTube Data API v3 키</label>
-      <input id="youtubeApiKey" type="password" autocomplete="off" placeholder="Google Cloud에서 발급한 API 키" style="width:100%; box-sizing:border-box; padding:9px;">
-      <div style="display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;">
-        <button type="button" onclick="saveYouTubeApiKey()">API 키 저장</button>
-        <button type="button" onclick="clearYouTubeApiKey()">키 삭제</button>
-      </div>
-      <p id="youtubeApiStatus" style="font-size:0.9em; margin:8px 0 0;">API 키를 입력하면 검색 결과의 링크 앞에 채널 닉네임을 표시합니다.</p>
-      <p style="font-size:0.85em; color:#555; margin-bottom:0;">키는 이 브라우저의 localStorage에 저장됩니다. 공개 웹사이트에 배포할 경우 키가 방문자에게 노출될 수 있으므로 Google Cloud에서 웹사이트 HTTP 리퍼러 제한과 YouTube Data API v3 API 제한을 설정하세요.</p>
-    </div>
-  </details>
   <div id="result">룰과 맵을 선택하여 검색하세요.</div>
 </div>
 
@@ -375,8 +362,7 @@ input[type="text"] {
   <div id="map1Dropdown" class="dropdown map-offset"></div>
   <div id="map2Dropdown" class="dropdown map-offset"></div>
 
-  <textarea id="url" placeholder="URL 선수이름
-예: https://youtu.be/영상ID 대회우승자" rows="3"></textarea>
+  <textarea id="url" placeholder="여기에 URL을 입력하세요." rows="3"></textarea>
   <div class="save-button-row">
     <button onclick="saveVideo()" style="background-color:#FFF9C4; color:black; border:2px solid black;">💾 저장 💾</button>
   </div>
@@ -418,11 +404,11 @@ const PERSONAL_KEY = "personalVideos";
 const PUBLIC_TOGGLE_KEY = "includePublicVideosEnabled";
 
 // 마지막으로 선택한 공용 영상 표시 설정을 불러옵니다.
-// 저장된 설정이 없으면 기본값은 꺼짐(false)입니다.
+// 저장된 설정이 없으면 기본값은 켜짐입니다.
 function initPublicToggle(){
   const checkbox = document.getElementById("includePublicVideos");
   const savedSetting = localStorage.getItem(PUBLIC_TOGGLE_KEY);
-  checkbox.checked = savedSetting === null ? false : savedSetting === "true";
+  checkbox.checked = savedSetting === null ? true : savedSetting === "true";
 }
 
 function onPublicToggleChange(){
@@ -565,7 +551,6 @@ document.addEventListener("click", function(e){
 
 /* ---------------- 초기 생성 ---------------- */
 initPublicToggle();
-loadYouTubeApiKeyField();
 createDropdown("rule", rules);
 createDropdown("map1", maps);
 createDropdown("map2", maps);
@@ -579,21 +564,16 @@ function saveVideo() {
   const rule = selected.rule;
   const map1 = selected.map1;
   const map2 = selected.map2;
-  const rawInput = document.getElementById("url").value.trim();
-  // 첫 공백(또는 줄바꿈)을 기준으로 URL과 선수 이름을 분리합니다.
-  const match = rawInput.match(/^(\S+)(?:\s+([\s\S]*))?$/);
-  const url = match ? match[1] : "";
-  const playerName = match && match[2] ? match[2].trim() : "";
+  const url = document.getElementById("url").value.trim();
 
   if (!url) { alert("URL을 입력하세요"); return; }
-  if (!/^https?:\/\//i.test(url)) { alert("http:// 또는 https://로 시작하는 URL을 입력해주세요."); return; }
   if (map1 === map2) { alert("서로 다른 맵 2개를 선택해주세요."); return; }
 
   const videos = getPersonalVideos();
   const createdAt = new Date().toISOString();
 
-  videos.push({ rule, map: map1, url, playerName, createdAt });
-  videos.push({ rule, map: map2, url, playerName, createdAt });
+  videos.push({ rule, map: map1, url, createdAt });
+  videos.push({ rule, map: map2, url, createdAt });
 
   savePersonalVideos(videos);
 
@@ -610,99 +590,8 @@ function saveVideo() {
   renderDeleteList();
 }
 
-/* ---------------- YouTube 채널 닉네임 자동 조회 ---------------- */
-const YOUTUBE_API_KEY_STORAGE = "youtubeDataApiKey";
-const YOUTUBE_CHANNEL_CACHE = "youtubeChannelTitleCache";
-
-function getYouTubeApiKey(){
-  return localStorage.getItem(YOUTUBE_API_KEY_STORAGE) || "";
-}
-function saveYouTubeApiKey(){
-  const key = document.getElementById("youtubeApiKey").value.trim();
-  if(!key){
-    setYouTubeApiStatus("API 키를 입력해주세요.", true);
-    return;
-  }
-  localStorage.setItem(YOUTUBE_API_KEY_STORAGE, key);
-  document.getElementById("youtubeApiKey").value = key;
-  setYouTubeApiStatus("API 키를 저장했습니다. 검색 결과의 채널명을 조회합니다.");
-  searchVideo();
-}
-function clearYouTubeApiKey(){
-  localStorage.removeItem(YOUTUBE_API_KEY_STORAGE);
-  document.getElementById("youtubeApiKey").value = "";
-  setYouTubeApiStatus("API 키를 삭제했습니다. 채널명 자동 조회가 중지됩니다.");
-  searchVideo();
-}
-function setYouTubeApiStatus(message, isError=false){
-  const status = document.getElementById("youtubeApiStatus");
-  if(status){
-    status.textContent = message;
-    status.style.color = isError ? "#b00020" : "#333";
-  }
-}
-function loadYouTubeApiKeyField(){
-  document.getElementById("youtubeApiKey").value = getYouTubeApiKey();
-}
-function extractYouTubeVideoId(url){
-  try{
-    const parsed = new URL(url);
-    const host = parsed.hostname.replace(/^www\./, "").toLowerCase();
-    if(host === "youtu.be") return parsed.pathname.split("/").filter(Boolean)[0] || null;
-    if(host === "youtube.com" || host === "m.youtube.com" || host === "music.youtube.com"){
-      if(parsed.searchParams.get("v")) return parsed.searchParams.get("v");
-      const parts = parsed.pathname.split("/").filter(Boolean);
-      if(["shorts", "live", "embed", "v"].includes(parts[0]) && parts[1]) return parts[1];
-    }
-  }catch(e){}
-  return null;
-}
-function getYouTubeChannelCache(){
-  try { return JSON.parse(localStorage.getItem(YOUTUBE_CHANNEL_CACHE)) || {}; }
-  catch { return {}; }
-}
-function saveYouTubeChannelCache(cache){
-  try { localStorage.setItem(YOUTUBE_CHANNEL_CACHE, JSON.stringify(cache)); }
-  catch(e) { console.warn("채널명 캐시를 저장하지 못했습니다.", e); }
-}
-async function fetchYouTubeChannelTitles(videoIds){
-  const apiKey = getYouTubeApiKey();
-  if(!apiKey || videoIds.length === 0) return {};
-  const cache = getYouTubeChannelCache();
-  const missingIds = [...new Set(videoIds)].filter(id => !cache[id]);
-  try{
-    // YouTube Data API videos.list는 요청당 최대 50개 ID를 조회할 수 있습니다.
-    for(let i=0; i<missingIds.length; i+=50){
-      const batch = missingIds.slice(i, i+50);
-      const endpoint = new URL("https://www.googleapis.com/youtube/v3/videos");
-      endpoint.searchParams.set("part", "snippet");
-      endpoint.searchParams.set("id", batch.join(","));
-      endpoint.searchParams.set("key", apiKey);
-      const response = await fetch(endpoint.toString());
-      const data = await response.json();
-      if(!response.ok){
-        const reason = data?.error?.errors?.[0]?.reason || data?.error?.message || "API 요청 실패";
-        throw new Error(reason);
-      }
-      for(const item of (data.items || [])){
-        if(item.id && item.snippet?.channelTitle) cache[item.id] = item.snippet.channelTitle;
-      }
-      // 유효하지 않거나 삭제된 영상은 결과가 없을 수 있으므로 빈 결과도 캐시합니다.
-      for(const id of batch) if(!(id in cache)) cache[id] = "";
-    }
-    saveYouTubeChannelCache(cache);
-    return cache;
-  }catch(error){
-    console.error("YouTube 채널명 조회 실패:", error);
-    setYouTubeApiStatus(`채널명 조회에 실패했습니다: ${error.message}. API 키와 API 사용 설정을 확인해주세요.`, true);
-    return null;
-  }
-}
-
 /* ---------------- 검색 ---------------- */
-let searchRenderToken = 0;
-async function searchVideo(){
-  const renderToken = ++searchRenderToken;
+function searchVideo(){
   const searchRule = selected.searchRule;
   const searchMap = selected.searchMap;
   const videos = getVisibleVideos();
@@ -715,71 +604,25 @@ async function searchVideo(){
   resultDiv.innerHTML = "";
 
   if(filtered.length === 0){
-    resultDiv.textContent = "검색 결과가 없습니다.";
+    resultDiv.innerHTML = "<p>검색 결과가 없습니다.</p>";
     return;
   }
 
-  const cache = getYouTubeChannelCache();
-  const idToRows = new Map();
-  filtered.forEach((v, index)=>{
-    // 신규 데이터는 URL과 선수 이름이 별도 저장됩니다.
-    // 이전 데이터 호환을 위해 playerName이 없으면 URL 필드의 첫 공백 뒤를 이름으로 사용합니다.
-    const storedUrl = String(v.url || "").trim();
-    const legacyParts = storedUrl.split(/\s+/);
-    const mainUrl = legacyParts[0] || "";
-    const playerName = String(v.playerName || legacyParts.slice(1).join(" ")).trim();
-    const videoId = extractYouTubeVideoId(mainUrl);
-    const p = document.createElement("p");
-    const number = document.createTextNode(`${index + 1}) `);
-    const player = document.createElement("span");
-    player.className = "player-name";
-    player.style.fontWeight = "bold";
-    player.style.marginRight = "6px";
-    player.textContent = playerName;
-    const channel = document.createElement("strong");
-    channel.className = "youtube-channel-name";
-    channel.style.marginRight = "6px";
-    if(videoId && cache[videoId]) channel.textContent = `[${cache[videoId]}]`;
-    else if(videoId && getYouTubeApiKey()) channel.textContent = "[채널명 조회 중…]";
-    else if(videoId) channel.textContent = "[API 키 설정 필요]";
-    else channel.textContent = "[채널명 확인 불가]";
-    const link = document.createElement("a");
-    link.href = mainUrl;
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-    link.textContent = mainUrl;
-    // 선수 이름은 일반 텍스트이며, 링크로 활성화되는 것은 URL뿐입니다.
-    p.append(number);
-    if(playerName) p.append(player, document.createTextNode(" "));
-    p.append(link, document.createTextNode(" "), channel);
-    resultDiv.appendChild(p);
-    if(videoId){
-      if(!idToRows.has(videoId)) idToRows.set(videoId, []);
-      idToRows.get(videoId).push(channel);
-    }
+  let index = 1;
+  filtered.forEach(v=>{
+    // URL과 설명 분리
+    const parts = v.url.split(" ");
+    const mainUrl = parts[0];
+    const description = parts.slice(1).join(" "); // URL 뒤 텍스트
+
+    resultDiv.innerHTML += `
+      <p>
+        ${index++}) 
+        <a href="${mainUrl}" target="_blank">${mainUrl}</a> 
+        <span style="color:black;">${description}</span>
+      </p>
+    `;
   });
-
-  const apiKey = getYouTubeApiKey();
-  if(!apiKey){
-    setYouTubeApiStatus("API 키를 입력하면 검색 결과의 링크 앞에 채널 닉네임을 표시합니다.");
-    return;
-  }
-  const uncachedIds = [...idToRows.keys()].filter(id => !(id in cache));
-  if(uncachedIds.length === 0){
-    setYouTubeApiStatus("채널명 조회 완료 (저장된 캐시 사용 가능). ");
-    for(const [id, rows] of idToRows){
-      const name = cache[id] || "채널명 확인 불가";
-      rows.forEach(el => el.textContent = `[${name}]`);
-    }
-    return;
-  }
-  const updatedCache = await fetchYouTubeChannelTitles(uncachedIds);
-  if(renderToken !== searchRenderToken || !updatedCache) return;
-  for(const [id, rows] of idToRows){
-    const name = updatedCache[id] || "채널명 확인 불가";
-    rows.forEach(el => el.textContent = `[${name}]`);
-  }
-  setYouTubeApiStatus("채널명 조회를 완료했습니다. 결과는 브라우저에 캐시됩니다.");
 }
 
 function toggleDeleteList(){
@@ -829,22 +672,17 @@ function renderDeleteList(){
     const label = document.createElement("div");
     label.textContent = `[ ${v.rule} - ${v.map} ]`;
     const link = document.createElement("a");
-    const storedUrl = String(v.url || "");
-    const mainUrl = storedUrl.split(/\s+/)[0];
-    const playerName = String(v.playerName || storedUrl.split(/\s+/).slice(1).join(" ")).trim();
-    link.href = mainUrl;
+    link.href = v.url.split(" ")[0];
     link.target = "_blank";
     link.rel = "noopener noreferrer";
-    link.textContent = mainUrl;
-    const playerLabel = document.createElement("span");
-    playerLabel.textContent = playerName ? `${playerName} ` : "";
+    link.textContent = v.url;
     const date = document.createElement("small");
     date.textContent = new Date(v.createdAt).toLocaleString();
     const deleteButton = document.createElement("button");
     deleteButton.textContent = "삭제";
     deleteButton.onclick = () => deleteUrl(v.url);
 
-    content.append(label, playerLabel, link, document.createElement("br"), date, document.createElement("br"), deleteButton);
+    content.append(label, link, document.createElement("br"), date, document.createElement("br"), deleteButton);
     entry.append(img, content);
     section.append(entry, document.createElement("hr"));
   });
