@@ -168,7 +168,7 @@ textarea {
 
 /* 선택한 룰에 영상이 없는 맵은 썸네일 채도, 밝기 수정 */
 .option-item.zero-count .thumbnail {
-  filter: saturate(5%) brightness(120%);
+  filter: saturate(3%) brightness(120%);
 }
 
 /* 기본 썸네일과 룰 썸네일은 30px 유지 */
@@ -311,7 +311,7 @@ input[type="text"] {
 <div class="title-meta-row">
   <span class="subtitle">(제작_오렌지징어 잉클링갤러리)</span>
   <label class="public-toggle" for="includePublicVideos">
-    <input type="checkbox" id="includePublicVideos" checked onchange="updateVideoSourceView()">
+    <input type="checkbox" id="includePublicVideos" onchange="onPublicToggleChange()">
     제작자의 스시 영상들 표시하기
   </label>
 </div>
@@ -370,6 +370,21 @@ let selected = {
 
 /* ---------------- 공용 라이브러리 + 개인 저장소 ---------------- */
 const PERSONAL_KEY = "personalVideos";
+const PUBLIC_TOGGLE_KEY = "includePublicVideosEnabled";
+
+// 마지막으로 선택한 공용 영상 표시 설정을 불러옵니다.
+// 저장된 설정이 없으면 기본값은 꺼짐(false)입니다.
+function initPublicToggle(){
+  const checkbox = document.getElementById("includePublicVideos");
+  const savedSetting = localStorage.getItem(PUBLIC_TOGGLE_KEY);
+  checkbox.checked = savedSetting === null ? false : savedSetting === "true";
+}
+
+function onPublicToggleChange(){
+  const checkbox = document.getElementById("includePublicVideos");
+  localStorage.setItem(PUBLIC_TOGGLE_KEY, String(checkbox.checked));
+  updateVideoSourceView();
+}
 let publicVideos = [];
 function getPersonalVideos(){
   try { return JSON.parse(localStorage.getItem(PERSONAL_KEY)) || []; }
@@ -504,6 +519,7 @@ document.addEventListener("click", function(e){
 });
 
 /* ---------------- 초기 생성 ---------------- */
+initPublicToggle();
 createDropdown("rule", rules);
 createDropdown("map1", maps);
 createDropdown("map2", maps);
@@ -709,5 +725,5 @@ updateCount();
 </script>
 
 </body>
-<br><br><br><br><br><br>
+<br><br><br><br>
 </html>
