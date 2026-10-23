@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>슾3랭커 영상 검색기</title>
+<title>스플래툰 영상URL 검색</title>
 <link rel="icon" type="image/png" href="images/logo.png">
 
 <style>
@@ -62,20 +62,49 @@ textarea {
   display: none;
   border: 1px solid #ccc;
   position: absolute;
+  left: 0;
+  top: 100%;
   background: white;
-  width: 100%;
-  max-height: 400px;
+  width: min(820px, 90vw);
+  max-height: 560px;
   overflow-y: auto;
   z-index: 1000;
   border-radius: 8px;
+  padding: 8px;
+  box-sizing: border-box;
 }
 
-.option-item {
-  padding: 6px;
+/* 룰 선택은 기존처럼 작은 썸네일과 세로 목록 유지 */
+.options:not(.map-options) .option-item {
   display: flex;
   align-items: center;
   gap: 8px;
+}
+
+/* 맵 선택 메뉴만 5열, 썸네일 아래에 맵 이름 표시 */
+.map-options {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  column-gap: 8px;
+  row-gap: 10px;
+}
+
+.option-item {
+  min-width: 0;
+  padding: 6px;
   cursor: pointer;
+  border-radius: 8px;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
+
+.map-options .option-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1px; /* 썸네일과 이름은 붙이고, 행 사이에는 row-gap으로 여유를 둠 */
+  text-align: center;
+  line-height: 1.2;
 }
 
 .option-item:hover {
@@ -86,16 +115,75 @@ textarea {
   color: #aaa;
 }
 
+/* 기본 썸네일과 룰 썸네일은 30px 유지 */
 .thumbnail {
   width: 30px;
   height: 30px;
+  flex: 0 0 30px;
   object-fit: cover;
   border-radius: 6px;
+}
+
+/* 선택된 맵을 보여주는 버튼의 썸네일만 120x120px로 확대. 룰 버튼은 30x30px 유지 */
+.selected.map-selected {
+  align-items: center;
+}
+
+.selected.map-selected span {
+  display: flex;
+  align-items: center;
+  min-height: 120px;
+}
+
+.selected.map-selected .thumbnail {
+  width: 120px;
+  height: 120px;
+  flex: 0 0 120px;
+  border-radius: 8px;
+}
+
+/* 맵 선택 목록의 썸네일만 기존 4배인 120px */
+.map-options .thumbnail {
+  display: block;
+  width: 120px;
+  height: 120px;
+  flex: 0 0 120px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin: 0;
 }
 
 .map-offset {
   margin-left: 30px;
   font-size: 14px;
+}
+
+.delete-map-thumbnail {
+  width: 60px;
+  height: 60px;
+  object-fit: cover;
+  border-radius: 7px;
+  vertical-align: middle;
+  margin-right: 8px;
+  flex: 0 0 60px;
+}
+
+.delete-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 6px;
+  overflow-wrap: anywhere;
+}
+
+.delete-entry-content {
+  min-width: 0;
+}
+
+.delete-entry-content a {
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 button {
@@ -110,6 +198,12 @@ button {
 
 button:hover {
   opacity: 0.8;
+}
+
+.save-button-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 16px;
 }
 
 input[type="text"] {
@@ -128,34 +222,50 @@ input[type="text"] {
   box-shadow: 0 4px 10px rgba(0,0,0,0.08);
   width: 320px;
 }
+
+@media (max-width: 720px) {
+  .map-options {
+    width: min(92vw, 340px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    column-gap: 8px;
+    row-gap: 10px;
+  }
+
+  .map-options .thumbnail {
+    width: 120px;
+    height: 120px;
+    flex-basis: 120px;
+  }
+}
 </style>
 </head>
 
 <body>
 
-<h1>★ 룰/맵별 영상URL 검색기 ★</h1>
+<h1>★ 룰/맵 별 영상 URL 검색기 ★</h1>
 
 <div class="section-box">
-  <h2>* 영상 검색 (공용 라이브러리 + 내 저장 목록) *</h2>
+  <h2> 🔎검색하기 </h2>
   <div id="searchRuleDropdown" class="dropdown"></div>
   <div id="searchMapDropdown" class="dropdown map-offset"></div>
   <div id="result">룰과 맵을 선택하여 검색하세요.</div>
 </div>
 
 <div class="section-box">
-  <h2>* 개인 URL 등록 *</h2>
+  <h2> 💾 새로운 URL 등록 </h2>
   <div id="ruleDropdown" class="dropdown"></div>
   <div id="map1Dropdown" class="dropdown map-offset"></div>
   <div id="map2Dropdown" class="dropdown map-offset"></div>
 
   <textarea id="url" placeholder="영상 URL 입력" rows="3"></textarea>
-  <br><br>
-  <button onclick="saveVideo()" style="background-color:#FFF9C4; color:black; border:2px solid black;">💾 저장</button>
+  <div class="save-button-row">
+    <button onclick="saveVideo()" style="background-color:#FFF9C4; color:black; border:2px solid black;">💾 저장 💾</button>
+  </div>
 </div>
 
 <p id="count"></p>
 
-<button onclick="toggleDeleteList()">💩 내 URL 삭제하기</button>
+<button id="deleteToggleButton" onclick="toggleDeleteList()" aria-expanded="false">💩 내 URL 삭제하기 <span id="deleteToggleIcon">▼</span></button>
 <div id="deleteSection" style="display:none;"></div><br><br><br>
 
 <hr>
@@ -225,11 +335,11 @@ function createDropdown(id, dataArray) {
   const container = document.getElementById(id + "Dropdown");
 
   container.innerHTML = `
-    <div class="selected" onclick="toggleDropdown('${id}')">
+    <div class="selected ${dataArray.some(item => maps.includes(item)) ? 'map-selected' : ''}" onclick="toggleDropdown('${id}')">
       <img class="thumbnail" id="${id}Img" src="images/${dataArray[0]}.png">
       <span id="${id}Text">${dataArray[0]}</span>
     </div>
-    <div class="options" id="${id}Options"></div>
+    <div class="options ${dataArray.some(item => maps.includes(item)) ? 'map-options' : ''}" id="${id}Options"></div>
   `;
 
   renderOptions(id, dataArray);
@@ -296,7 +406,10 @@ function refreshAllMapDropdowns(){
 
 function toggleDropdown(id) {
   const el = document.getElementById(id + "Options");
-  el.style.display = el.style.display === "block" ? "none" : "block";
+  const openDisplay = el.classList.contains("map-options") ? "grid" : "block";
+  const isOpen = el.style.display === openDisplay;
+  document.querySelectorAll(".options").forEach(options => options.style.display = "none");
+  el.style.display = isOpen ? "none" : openDisplay;
 }
 
 document.addEventListener("click", function(e){
@@ -382,7 +495,12 @@ function searchVideo(){
 
 function toggleDeleteList(){
   const section = document.getElementById("deleteSection");
-  section.style.display = section.style.display === "none" ? "block" : "none";
+  const button = document.getElementById("deleteToggleButton");
+  const icon = document.getElementById("deleteToggleIcon");
+  const isOpening = section.style.display === "none";
+  section.style.display = isOpening ? "block" : "none";
+  button.setAttribute("aria-expanded", String(isOpening));
+  icon.textContent = isOpening ? "▲" : "▼";
   renderDeleteList();
 }
 
@@ -396,31 +514,45 @@ function renderDeleteList(){
     return;
   }
 
-  // 전체 삭제 버튼
   section.innerHTML += `<button onclick="deleteAll()" style="background-color:red;">💀💀 전체 삭제 💀💀</button><hr>`;
-
-  // 최근 등록순 정렬
-  const sortedVideos = videos.sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
-
+  const sortedVideos = [...videos].sort((a,b)=> new Date(b.createdAt) - new Date(a.createdAt));
   let toggleColor = false;
   let prevUrl = "";
 
-  sortedVideos.forEach((v, index)=>{
-    // URL이 바뀌면 색상 토글
+  sortedVideos.forEach(v=>{
     if(v.url !== prevUrl){
       toggleColor = !toggleColor;
       prevUrl = v.url;
     }
+    const bgColor = toggleColor ? "#e4e4e4" : "#ffffff";
+    const entry = document.createElement("div");
+    entry.className = "delete-entry";
+    entry.style.backgroundColor = bgColor;
 
-    const bgColor = toggleColor ? "#e4e4e4" : "#ffffff"; // 두 가지 색상 번갈아
+    const img = document.createElement("img");
+    img.className = "delete-map-thumbnail";
+    img.src = `images/${v.map}.png`;
+    img.alt = `${v.map} 맵 썸네일`;
+    img.onerror = function(){ this.style.display = "none"; };
 
-    section.innerHTML += `
-      <p style="background-color:${bgColor}; padding:5px; border-radius:4px;">
-        [ ${v.rule} - ${v.map} ] <a href="${v.url}" target="_blank">${v.url}</a><br>
-        <small>${new Date(v.createdAt).toLocaleString()}</small><br>
-        <button onclick="deleteUrl('${v.url}')">삭제</button>
-      </p><hr>
-    `;
+    const content = document.createElement("div");
+    content.className = "delete-entry-content";
+    const label = document.createElement("div");
+    label.textContent = `[ ${v.rule} - ${v.map} ]`;
+    const link = document.createElement("a");
+    link.href = v.url.split(" ")[0];
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = v.url;
+    const date = document.createElement("small");
+    date.textContent = new Date(v.createdAt).toLocaleString();
+    const deleteButton = document.createElement("button");
+    deleteButton.textContent = "삭제";
+    deleteButton.onclick = () => deleteUrl(v.url);
+
+    content.append(label, link, document.createElement("br"), date, document.createElement("br"), deleteButton);
+    entry.append(img, content);
+    section.append(entry, document.createElement("hr"));
   });
 }
 function deleteUrl(url){
@@ -475,9 +607,10 @@ function importData(event){
 
 /* ------------------- 카운트 업데이트 ------------------- */
 function updateCount() {
-  const personalCount = getPersonalVideos().length;
+  // URL 하나가 맵별로 두 항목에 저장되므로 전체 항목 수를 2로 나눠 표시
+  const totalUrlCount = Math.floor(getAllVideos().length / 2);
   document.getElementById("count").innerText =
-    `* 영상 URL 총 개수 : ${getAllVideos().length} (공용 ${publicVideos.length} / 개인 ${personalCount})`;
+    `* 영상 URL 총 개수 : ${totalUrlCount}`;
 }
 
 document.getElementById("url").addEventListener("keydown", function(e) {
