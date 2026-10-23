@@ -17,10 +17,32 @@ body {
   background-color: #f5f5f5;
 }
 
+.title-meta-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 2px 0 20px;
+}
+
 .subtitle {
+  display: inline-block;
   font-size: 10px;
   color: white;
   margin-left: 1px;
+}
+
+.public-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  width: fit-content;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #888;
+  cursor: pointer;
 }
 
 textarea {
@@ -206,6 +228,10 @@ button:hover {
   margin-top: 16px;
 }
 
+.public-toggle input {
+  cursor: pointer;
+}
+
 input[type="text"] {
   padding: 25px 10px;
   border-radius: 8px;
@@ -244,8 +270,18 @@ input[type="text"] {
 
 <h1>★ 룰/맵 별 영상 URL 검색기 ★</h1>
 
+<div class="title-meta-row">
+  <span class="subtitle">(제작_오렌지징어 잉클링갤러리)</span>
+  <label class="public-toggle" for="includePublicVideos">
+    <input type="checkbox" id="includePublicVideos" checked onchange="updateVideoSourceView()">
+    제작자의 스시 영상들 표시하기
+  </label>
+</div>
+
+
+
 <div class="section-box">
-  <h2> 🔎검색하기 </h2>
+  <h2> 🔎 검색하기 </h2>
   <div id="searchRuleDropdown" class="dropdown"></div>
   <div id="searchMapDropdown" class="dropdown map-offset"></div>
   <div id="result">룰과 맵을 선택하여 검색하세요.</div>
@@ -257,14 +293,13 @@ input[type="text"] {
   <div id="map1Dropdown" class="dropdown map-offset"></div>
   <div id="map2Dropdown" class="dropdown map-offset"></div>
 
-  <textarea id="url" placeholder="영상 URL 입력" rows="3"></textarea>
+  <textarea id="url" placeholder="여기에 URL을 입력하세요." rows="3"></textarea>
   <div class="save-button-row">
     <button onclick="saveVideo()" style="background-color:#FFF9C4; color:black; border:2px solid black;">💾 저장 💾</button>
   </div>
 </div>
 
 <p id="count"></p>
-
 <button id="deleteToggleButton" onclick="toggleDeleteList()" aria-expanded="false">💩 내 URL 삭제하기 <span id="deleteToggleIcon">▼</span></button>
 <div id="deleteSection" style="display:none;"></div><br><br><br>
 
@@ -272,9 +307,8 @@ input[type="text"] {
 
 <button onclick="exportData()" style="background-color:#d3d3d3;">📤 내 URL 백업하기</button>
 <br><br>
-📩 내 URL 백업 가져오기 (병합)<br>
+📩 내 URL 백업 가져오기 <br>
 <input type="file" id="importFile" accept=".json" onchange="importData(event)"><br>
-<span class="subtitle">(제작_오렌지징어 잉클링갤러리)</span>
 
 <script>
 const rules = ["에어리어","랭크 타워","랭크 피시","바지락"];
@@ -291,7 +325,7 @@ const maps = [
 let selected = {
   rule: rules[0],
   map1: maps[0],
-  map2: maps[0],
+  map2: maps[1],
   searchRule: rules[0],
   searchMap: maps[0]
 };
@@ -308,6 +342,18 @@ function savePersonalVideos(videos){
 }
 function getAllVideos(){
   return [...publicVideos, ...getPersonalVideos()];
+}
+
+// 체크 여부에 따라 검색과 맵별 카운트에 사용할 영상 목록을 결정
+function getVisibleVideos(){
+  const includePublic = document.getElementById("includePublicVideos")?.checked ?? true;
+  return includePublic ? getAllVideos() : getPersonalVideos();
+}
+
+function updateVideoSourceView(){
+  refreshAllMapDropdowns();
+  searchVideo();
+  updateCount();
 }
 async function loadPublicVideos(){
   try {
@@ -327,17 +373,18 @@ async function loadPublicVideos(){
 
 /* ---------------- 카운트 계산 ---------------- */
 function getMapCount(rule, map){
-  return getAllVideos().filter(v=>v.rule===rule && v.map===map).length;
+  return getVisibleVideos().filter(v=>v.rule===rule && v.map===map).length;
 }
 
 /* ---------------- 드롭다운 생성 ---------------- */
 function createDropdown(id, dataArray) {
   const container = document.getElementById(id + "Dropdown");
+  const initialItem = selected[id] || dataArray[0];
 
   container.innerHTML = `
     <div class="selected ${dataArray.some(item => maps.includes(item)) ? 'map-selected' : ''}" onclick="toggleDropdown('${id}')">
-      <img class="thumbnail" id="${id}Img" src="images/${dataArray[0]}.png">
-      <span id="${id}Text">${dataArray[0]}</span>
+      <img class="thumbnail" id="${id}Img" src="images/${initialItem}.png">
+      <span id="${id}Text">${initialItem}</span>
     </div>
     <div class="options ${dataArray.some(item => maps.includes(item)) ? 'map-options' : ''}" id="${id}Options"></div>
   `;
@@ -462,7 +509,7 @@ function saveVideo() {
 function searchVideo(){
   const searchRule = selected.searchRule;
   const searchMap = selected.searchMap;
-  const videos = getAllVideos();
+  const videos = getVisibleVideos();
 
   const filtered = videos
     .filter(v => v.rule === searchRule && v.map === searchMap)
@@ -510,7 +557,7 @@ function renderDeleteList(){
   section.innerHTML = "";
 
   if(videos.length === 0){
-    section.innerHTML = "개인적으로 저장한 URL이 없습니다. 공용 라이브러리의 URL은 여기서 삭제할 수 없습니다.";
+    section.innerHTML = "개인적으로 저장한 URL이 없습니다. 제작자의 데이터는 삭제할 수 없습니다.";
     return;
   }
 
@@ -608,7 +655,7 @@ function importData(event){
 /* ------------------- 카운트 업데이트 ------------------- */
 function updateCount() {
   // URL 하나가 맵별로 두 항목에 저장되므로 전체 항목 수를 2로 나눠 표시
-  const totalUrlCount = Math.floor(getAllVideos().length / 2);
+  const totalUrlCount = Math.floor(getVisibleVideos().length / 2);
   document.getElementById("count").innerText =
     `* 영상 URL 총 개수 : ${totalUrlCount}`;
 }
@@ -624,4 +671,5 @@ updateCount();
 </script>
 
 </body>
+<br><br><br><br>
 </html>
