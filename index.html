@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>스플래툰3 룰/맵 영상검색</title>
+<title>스플래툰 영상URL 검색</title>
 <link rel="icon" type="image/png" href="images/logo.png">
 
 <style>
 h1 {
   font-family: 'Verdana', cursive;
-  font-size: 24px;
+  font-size: 30px;
   color: #5C4033;
 }
 
@@ -172,7 +172,7 @@ textarea {
 /* 선택한 룰에 영상이 없는 맵은 썸네일 채도, 밝기 수정 */
 /* 검색용 맵 선택 목록에서만 채도와 밝기 효과 적용 */
 #searchMapOptions .option-item.zero-count .thumbnail {
-  filter: saturate(4%) brightness(140%);
+  filter: saturate(2%) brightness(140%);
 }
 
 /* 기본 썸네일과 룰 썸네일은 30px 유지 */
@@ -337,7 +337,7 @@ input[type="text"] {
 
 <body>
 
-<h1>룰/맵 영상 검색기 ★</h1>
+<h1>★ 룰/맵 별 영상 URL 검색기 ★</h1>
 
 <div class="title-meta-row">
   <span class="subtitle">(제작_오렌지징어 잉클링갤러리)</span>
@@ -362,7 +362,8 @@ input[type="text"] {
   <div id="map1Dropdown" class="dropdown map-offset"></div>
   <div id="map2Dropdown" class="dropdown map-offset"></div>
 
-  <textarea id="url" placeholder="여기에 URL을 입력하세요." rows="3"></textarea>
+  <textarea id="url" placeholder="여기에 URL을 입력하세요.
+URL 뒤에 스페이스 후 채널명 입력 (생략가능)" rows="2"></textarea>
   <div class="save-button-row">
     <button onclick="saveVideo()" style="background-color:#FFF9C4; color:black; border:2px solid black;">💾 저장 💾</button>
   </div>
@@ -404,11 +405,11 @@ const PERSONAL_KEY = "personalVideos";
 const PUBLIC_TOGGLE_KEY = "includePublicVideosEnabled";
 
 // 마지막으로 선택한 공용 영상 표시 설정을 불러옵니다.
-// 저장된 설정이 없으면 기본값은 켜짐입니다.
+// 저장된 설정이 없으면 기본값은 꺼짐(false)입니다.
 function initPublicToggle(){
   const checkbox = document.getElementById("includePublicVideos");
   const savedSetting = localStorage.getItem(PUBLIC_TOGGLE_KEY);
-  checkbox.checked = savedSetting === null ? true : savedSetting === "true";
+  checkbox.checked = savedSetting === null ? false : savedSetting === "true";
 }
 
 function onPublicToggleChange(){
@@ -417,15 +418,26 @@ function onPublicToggleChange(){
   updateVideoSourceView();
 }
 let publicVideos = [];
+function normalizeVideo(video){
+  const item = (video && typeof video === "object") ? {...video} : {};
+  // 구버전 데이터의 URL 뒤에 채널명이 붙어 있다면 분리하고,
+  // channelName 필드가 없으면 빈 문자열로 만들어 데이터 형식을 통일합니다.
+  const fields = getVideoFields(item);
+  item.url = fields.url;
+  item.channelName = String(item.channelName ?? item.playerName ?? fields.channelName ?? "").trim();
+  return item;
+}
 function getPersonalVideos(){
-  try { return JSON.parse(localStorage.getItem(PERSONAL_KEY)) || []; }
-  catch { return []; }
+  try {
+    const parsed = JSON.parse(localStorage.getItem(PERSONAL_KEY)) || [];
+    return Array.isArray(parsed) ? parsed.map(normalizeVideo) : [];
+  } catch { return []; }
 }
 function savePersonalVideos(videos){
-  localStorage.setItem(PERSONAL_KEY, JSON.stringify(videos));
+  localStorage.setItem(PERSONAL_KEY, JSON.stringify(videos.map(normalizeVideo)));
 }
 function getAllVideos(){
-  return [...publicVideos, ...getPersonalVideos()];
+  return [...publicVideos.map(normalizeVideo), ...getPersonalVideos()];
 }
 
 // 체크 여부에 따라 검색과 맵별 카운트에 사용할 영상 목록을 결정
@@ -444,7 +456,7 @@ async function loadPublicVideos(){
     const response = await fetch("./public-videos.json");
     if (!response.ok) throw new Error("공용 데이터 파일을 불러오지 못했습니다.");
     const data = await response.json();
-    publicVideos = Array.isArray(data) ? data.map(v => ({...v, source: "public"})) : [];
+    publicVideos = Array.isArray(data) ? data.map(v => ({...normalizeVideo(v), source: "public"})) : [];
   } catch (error) {
     console.error(error);
     publicVideos = [];
@@ -564,16 +576,21 @@ function saveVideo() {
   const rule = selected.rule;
   const map1 = selected.map1;
   const map2 = selected.map2;
-  const url = document.getElementById("url").value.trim();
+  const rawInput = document.getElementById("url").value.trim();
+  // 첫 공백(또는 줄바꿈)을 기준으로 URL과 채널명을 분리합니다.
+  const match = rawInput.match(/^(\S+)(?:\s+([\s\S]*))?$/);
+  const url = match ? match[1] : "";
+  const channelName = match && match[2] ? match[2].trim() : "";
 
   if (!url) { alert("URL을 입력하세요"); return; }
+  if (!/^https?:\/\//i.test(url)) { alert("http:// 또는 https://로 시작하는 URL을 입력해주세요."); return; }
   if (map1 === map2) { alert("서로 다른 맵 2개를 선택해주세요."); return; }
 
   const videos = getPersonalVideos();
   const createdAt = new Date().toISOString();
 
-  videos.push({ rule, map: map1, url, createdAt });
-  videos.push({ rule, map: map2, url, createdAt });
+  videos.push({ rule, map: map1, url, channelName, createdAt });
+  videos.push({ rule, map: map2, url, channelName, createdAt });
 
   savePersonalVideos(videos);
 
@@ -590,38 +607,55 @@ function saveVideo() {
   renderDeleteList();
 }
 
+/* ---------------- 저장된 URL과 채널명 분리 ---------------- */
+function getVideoFields(video){
+  // 새 데이터는 url과 channelName이 분리되어 있습니다.
+  // 이전 버전의 데이터도 호환되도록 URL 필드에 붙어 있던 뒷부분을 채널명으로 처리합니다.
+  const stored = String(video.url || "").trim();
+  const parts = stored.match(/^(\S+)(?:\s+([\s\S]*))?$/);
+  const url = parts ? parts[1] : "";
+  const legacyChannelName = parts && parts[2] ? parts[2].trim() : "";
+  const channelName = String(video.channelName || video.playerName || legacyChannelName).trim();
+  return { url, channelName };
+}
+
 /* ---------------- 검색 ---------------- */
 function searchVideo(){
   const searchRule = selected.searchRule;
   const searchMap = selected.searchMap;
   const videos = getVisibleVideos();
-
   const filtered = videos
     .filter(v => v.rule === searchRule && v.map === searchMap)
     .sort((a,b)=> new Date(b.createdAt)-new Date(a.createdAt));
 
   const resultDiv = document.getElementById("result");
   resultDiv.innerHTML = "";
-
   if(filtered.length === 0){
-    resultDiv.innerHTML = "<p>검색 결과가 없습니다.</p>";
+    resultDiv.textContent = "검색 결과가 없습니다.";
     return;
   }
 
-  let index = 1;
-  filtered.forEach(v=>{
-    // URL과 설명 분리
-    const parts = v.url.split(" ");
-    const mainUrl = parts[0];
-    const description = parts.slice(1).join(" "); // URL 뒤 텍스트
+  filtered.forEach((video, index)=>{
+    const { url, channelName } = getVideoFields(video);
+    const row = document.createElement("p");
+    row.appendChild(document.createTextNode(`${index + 1}) `));
 
-    resultDiv.innerHTML += `
-      <p>
-        ${index++}) 
-        <a href="${mainUrl}" target="_blank">${mainUrl}</a> 
-        <span style="color:black;">${description}</span>
-      </p>
-    `;
+    // 채널명은 일반 텍스트로 표시하고, URL만 클릭 가능한 링크로 만듭니다.
+    if(channelName){
+      const channel = document.createElement("span");
+      channel.className = "channel-name";
+      channel.textContent = channelName;
+      channel.style.fontWeight = "bold";
+      row.append(channel, document.createTextNode(" "));
+    }
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+    link.textContent = url;
+    row.appendChild(link);
+    resultDiv.appendChild(row);
   });
 }
 
@@ -672,17 +706,20 @@ function renderDeleteList(){
     const label = document.createElement("div");
     label.textContent = `[ ${v.rule} - ${v.map} ]`;
     const link = document.createElement("a");
-    link.href = v.url.split(" ")[0];
+    const { url: mainUrl, channelName } = getVideoFields(v);
+    link.href = mainUrl;
     link.target = "_blank";
     link.rel = "noopener noreferrer";
-    link.textContent = v.url;
+    link.textContent = mainUrl;
+    const channelLabel = document.createElement("span");
+    channelLabel.textContent = channelName ? `${channelName} ` : "";
     const date = document.createElement("small");
     date.textContent = new Date(v.createdAt).toLocaleString();
     const deleteButton = document.createElement("button");
     deleteButton.textContent = "삭제";
     deleteButton.onclick = () => deleteUrl(v.url);
 
-    content.append(label, link, document.createElement("br"), date, document.createElement("br"), deleteButton);
+    content.append(label, channelLabel, link, document.createElement("br"), date, document.createElement("br"), deleteButton);
     entry.append(img, content);
     section.append(entry, document.createElement("hr"));
   });
@@ -725,7 +762,13 @@ function importData(event){
       const parsed = JSON.parse(e.target.result);
       if (!Array.isArray(parsed)) throw new Error("JSON 데이터는 배열이어야 합니다.");
       const existing = getPersonalVideos();
-      const merged = [...existing, ...parsed.map(v => ({...v, source: undefined}))];
+      // 가져온 JSON의 모든 항목에 url과 channelName 필드를 보장합니다.
+      const imported = parsed.map(v => {
+        const normalized = normalizeVideo(v);
+        delete normalized.source;
+        return normalized;
+      });
+      const merged = [...existing, ...imported];
       savePersonalVideos(merged);
       updateCount();
       renderDeleteList();
@@ -756,5 +799,5 @@ updateCount();
 </script>
 
 </body>
-<br><br><br><br><br><br>
+<br><br><br><br>
 </html>
