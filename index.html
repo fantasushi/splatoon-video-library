@@ -337,13 +337,13 @@ input[type="text"] {
 
 <body>
 
-<h1>룰/맵 영상 검색기</h1>
+<h1>★ 룰/맵 별 영상 URL 검색기 ★</h1>
 
 <div class="title-meta-row">
   <span class="subtitle">(제작_오렌지징어 잉클링갤러리)</span>
   <label class="public-toggle" for="includePublicVideos">
     <input type="checkbox" id="includePublicVideos" onchange="onPublicToggleChange()">
-    제작자의 스시 영상들 포함하기
+    제작자의 스시 영상들 표시하기
   </label>
 </div>
 
@@ -363,7 +363,8 @@ input[type="text"] {
   <div id="map2Dropdown" class="dropdown map-offset"></div>
 
   <textarea id="url" placeholder="여기에 URL을 입력하세요.
-(띄어쓰기 후 채널명 추가 가능)" rows="2"></textarea>
+URL 뒤에 스페이스 후 채널명 입력 (생략가능)
+예: https://youtu.be/영상ID 대회우승자" rows="3"></textarea>
   <div class="save-button-row">
     <button onclick="saveVideo()" style="background-color:#FFF9C4; color:black; border:2px solid black;">💾 저장 💾</button>
   </div>
@@ -619,6 +620,29 @@ function getVideoFields(video){
   return { url, channelName };
 }
 
+// 같은 영상이 등록된 다른 맵을 찾습니다.
+// 한 번 등록할 때 두 맵 항목의 createdAt이 같으므로, 동일 등록 건을 우선 연결합니다.
+function getOtherMapsForVideo(video, videos, currentMap){
+  const { url } = getVideoFields(video);
+  const sameVideo = videos.filter(candidate =>
+    candidate.rule === video.rule && getVideoFields(candidate).url === url
+  );
+
+  let relatedVideos = sameVideo;
+  if(video.createdAt){
+    const sameRegistration = sameVideo.filter(candidate => candidate.createdAt === video.createdAt);
+    if(sameRegistration.length > 0){
+      relatedVideos = sameRegistration;
+    }
+  }
+
+  return [...new Set(
+    relatedVideos
+      .map(candidate => candidate.map)
+      .filter(mapName => mapName && mapName !== currentMap)
+  )];
+}
+
 /* ---------------- 검색 ---------------- */
 function searchVideo(){
   const searchRule = selected.searchRule;
@@ -637,16 +661,28 @@ function searchVideo(){
 
   filtered.forEach((video, index)=>{
     const { url, channelName } = getVideoFields(video);
+    const otherMaps = getOtherMapsForVideo(video, videos, searchMap);
     const row = document.createElement("p");
     row.appendChild(document.createTextNode(`${index + 1}) `));
 
-    // 채널명은 일반 텍스트로 표시하고, URL만 클릭 가능한 링크로 만듭니다.
+    // 채널명과 다른 맵은 일반 텍스트, URL만 클릭 가능한 링크로 표시합니다.
     if(channelName){
       const channel = document.createElement("span");
       channel.className = "channel-name";
       channel.textContent = channelName;
       channel.style.fontWeight = "bold";
-      row.append(channel, document.createTextNode(" "));
+      row.appendChild(channel);
+    }
+
+    if(otherMaps.length > 0){
+      const otherMapLabel = document.createElement("span");
+      otherMapLabel.className = "other-map-name";
+      otherMapLabel.textContent = ` (+${otherMaps.join(", ")})`;
+      row.appendChild(otherMapLabel);
+    }
+
+    if(channelName || otherMaps.length > 0){
+      row.appendChild(document.createTextNode(" "));
     }
 
     const link = document.createElement("a");
@@ -785,7 +821,7 @@ function updateCount() {
   // URL 하나가 맵별로 두 항목에 저장되므로 전체 항목 수를 2로 나눠 표시
   const totalUrlCount = Math.floor(getVisibleVideos().length / 2);
   document.getElementById("count").innerText =
-    `* 영상 URL 총 개수 : ${totalUrlCount} *`;
+    `* 영상 URL 총 개수 : ${totalUrlCount}`;
 }
 
 document.getElementById("url").addEventListener("keydown", function(e) {
@@ -799,5 +835,5 @@ updateCount();
 </script>
 
 </body>
-<br><br><br><br><br><br>
+<br><br><br><br>
 </html>
