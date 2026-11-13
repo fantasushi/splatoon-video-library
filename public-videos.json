@@ -1300,5 +1300,285 @@
     "url": "https://www.youtube.com/live/lgiJyazRqpo?si=DUzpiV8rcqBQlDO0&t=3403",
     "channelName": "애로우",
     "createdAt": "2026-10-23T17:16:41.240Z"
+  },
+  {
+    "rule": "에어리어",
+    "map": "용궁 터미널",
+    "url": "https://www.youtube.com/watch?v=Pzey47_g6Wk",
+    "channelName": "시가",
+    "createdAt": "2026-10-30T10:17:01.641Z"
+  },
+  {
+    "rule": "에어리어",
+    "map": "혹등 마켓",
+    "url": "https://www.youtube.com/watch?v=Pzey47_g6Wk",
+    "channelName": "시가",
+    "createdAt": "2026-10-30T10:17:01.641Z"
+  },
+  {
+    "rule": "에어리어",
+    "map": "나메로우 금속",
+    "url": "https://www.youtube.com/watch?v=LnbKa9Woyi8",
+    "channelName": "시가",
+    "createdAt": "2026-10-30T10:18:35.423Z"
+  },
+  {
+    "rule": "에어리어",
+    "map": "도미 미술관",
+    "url": "https://www.youtube.com/watch?v=LnbKa9Woyi8",
+    "channelName": "시가",
+    "createdAt": "2026-10-30T10:18:35.423Z"
+  },
+  {
+    "rule": "에어리어",
+    "map": "나메로우 금속",
+    "url": "https://www.youtube.com/watch?v=fZ07nu4cQCA",
+    "channelName": "시가",
+    "createdAt": "2026-10-30T10:18:44.954Z"
+  },
+  {
+    "rule": "에어리어",
+    "map": "다시마 트랙",
+    "url": "https://www.youtube.com/watch?v=fZ07nu4cQCA",
+    "channelName": "시가",
+    "createdAt": "2026-10-30T10:18:44.954Z"
+  },
+  {
+    "rule": "에어리어",
+    "map": "혹등 마켓",
+    "url": "https://www.youtube.com/watch?v=HN5TGQ8uDrk",
+    "channelName": "시가",
+    "createdAt": "2026-10-30T10:19:55.636Z"
+  },
+  {
+    "rule": "에어리어",
+    "map": "만타 마리아호",
+    "url": "https://www.youtube.com/watch?v=HN5TGQ8uDrk",
+    "channelName": "시가",
+    "createdAt": "2026-10-30T10:19:55.636Z"
+  },
+  {
+    "rule": "에어리어",
+    "map": "혹등 마켓",
+    "url": "https://www.youtube.com/watch?v=StzRZ4rP9tw",
+    "channelName": "시가",
+    "createdAt": "2026-10-30T10:20:18.689Z"
+  },
+  {
+    "rule": "에어리어",
+    "map": "만새기 리조트&스파",
+    "url": "https://www.youtube.com/watch?v=StzRZ4rP9tw",
+    "channelName": "시가",
+    "createdAt": "2026-10-30T10:20:18.689Z"
+  },
+  {
+    "rule": "바지락",
+    "map": "거미게 경제특구",
+    "url": "https://www.youtube.com/watch?v=PaQdIwVysCs&t=27s",
+    "channelName": "히이라기",
+    "createdAt": "2026-10-30T10:29:25.665Z"
+  },
+  {
+    "rule": "바지락",
+    "map": "광어 해운",
+    "url": "https://www.youtube.com/watch?v=PaQdIwVysCs&t=27s",
+    "channelName": "히이라기",
+    "createdAt": "2026-10-30T10:29:25.665Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "맛조개 방수로",
+    "url": "https://www.youtube.com/watch?v=4Fm2F6mtORc&t=611s",
+    "channelName": "히이라기",
+    "createdAt": "2026-10-30T10:30:26.376Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "대치 시장",
+    "url": "https://www.youtube.com/watch?v=4Fm2F6mtORc&t=611s",
+    "channelName": "히이라기",
+    "createdAt": "2026-10-30T10:30:26.376Z"
+  },
+  {
+    "rule": "랭크 타워",
+    "map": "대구포트 쇼핑파크",
+    "url": "https://www.youtube.com/live/oRbf3Vy7iiQ?si=4jUGLIRVKSqFGaAx&t=83",
+    "channelName": "케이",
+    "createdAt": "2026-11-13T11:22:36.073Z"
+  },
+  {
+    "rule": "랭크 타워",
+    "map": "고등어 해협대교",
+    "url": "https://www.youtube.com/live/oRbf3Vy7iiQ?si=4jUGLIRVKSqFGaAx&t=83",
+    "channelName": "케이",
+    "createdAt": "2026-11-13T11:22:36.073Z"
+  },
+  {
+    "rule": "에어리어",
+    "map": "다시마 트랙",
+    "url": "https://www.youtube.com/live/oRbf3Vy7iiQ?si=Za1SXld0JFvkFygi&t=6658",
+    "channelName": "케이",
+    "createdAt": "2026-11-13T11:23:26.155Z"
+  },
+  {
+    "rule": "에어리어",
+    "map": "해녀 미술대학",
+    "url": "https://www.youtube.com/live/oRbf3Vy7iiQ?si=Za1SXld0JFvkFygi&t=6658",
+    "channelName": "케이",
+    "createdAt": "2026-11-13T11:23:26.155Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "만타 마리아호",
+    "url": "https://www.youtube.com/live/XNi7fkGSQkY?si=1dnp6qCwpXbABGJg&t=3730",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:27:41.377Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "석순 대협곡",
+    "url": "https://www.youtube.com/live/XNi7fkGSQkY?si=1dnp6qCwpXbABGJg&t=3730",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:27:41.377Z"
+  },
+  {
+    "rule": "에어리어",
+    "map": "넙치 언덕단지",
+    "url": "https://www.youtube.com/live/gC-_Tr3TSd4?si=nzYtVtzT18dguGTG&t=134",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:28:34.167Z"
+  },
+  {
+    "rule": "에어리어",
+    "map": "참치 탄광",
+    "url": "https://www.youtube.com/live/gC-_Tr3TSd4?si=nzYtVtzT18dguGTG&t=134",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:28:34.167Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "나메로우 금속",
+    "url": "https://www.youtube.com/live/7H7d3md7b9c?si=qXCFLJVsrLLrthxY&t=69",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:30:01.593Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "수랑정",
+    "url": "https://www.youtube.com/live/7H7d3md7b9c?si=qXCFLJVsrLLrthxY&t=69",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:30:01.593Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "만새기 리조트&스파",
+    "url": "https://www.youtube.com/live/QpQ_gakt7PE?si=UWdFAGEP458XHL4W&t=99",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:30:55.143Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "남플라 유적",
+    "url": "https://www.youtube.com/live/QpQ_gakt7PE?si=UWdFAGEP458XHL4W&t=99",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:30:55.143Z"
+  },
+  {
+    "rule": "바지락",
+    "map": "수랑정",
+    "url": "https://www.youtube.com/live/PnLXYXHtBck?si=7Iakm_LuNaMWZEBE&t=138",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:31:40.691Z"
+  },
+  {
+    "rule": "바지락",
+    "map": "도미 미술관",
+    "url": "https://www.youtube.com/live/PnLXYXHtBck?si=7Iakm_LuNaMWZEBE&t=138",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:31:40.691Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "다시마 트랙",
+    "url": "https://www.youtube.com/live/iXdQws2WHZU?si=8pJFTopJWIVnubLF&t=99",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:32:10.088Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "데카라인 고가밑",
+    "url": "https://www.youtube.com/live/iXdQws2WHZU?si=8pJFTopJWIVnubLF&t=99",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:32:10.088Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "거미게 경제특구",
+    "url": "https://www.youtube.com/live/jqilM_LF-yU?si=er4jfv_YzkewagXq&t=468",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:32:55.681Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "넙치 언덕단지",
+    "url": "https://www.youtube.com/live/jqilM_LF-yU?si=er4jfv_YzkewagXq&t=468",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:32:55.681Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "혹등 마켓",
+    "url": "https://www.youtube.com/live/yOWFohTVkpA?si=R1Q5zN6-1MUql4zT&t=249",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:33:43.179Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "메기 지구",
+    "url": "https://www.youtube.com/live/yOWFohTVkpA?si=R1Q5zN6-1MUql4zT&t=249",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:33:43.179Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "석순 대협곡",
+    "url": "https://www.youtube.com/live/WFKMvvbWScg?si=ndZIbgu14i0SWfnk&t=211",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:34:14.349Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "다시마 트랙",
+    "url": "https://www.youtube.com/live/WFKMvvbWScg?si=ndZIbgu14i0SWfnk&t=211",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:34:14.349Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "나메로우 금속",
+    "url": "https://www.youtube.com/live/JbxcjJLrOhY?si=VeQtI-HJUzXTCyqv&t=180",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:34:47.187Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "과메기 온천",
+    "url": "https://www.youtube.com/live/JbxcjJLrOhY?si=VeQtI-HJUzXTCyqv&t=180",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:34:47.187Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "석순 대협곡",
+    "url": "https://www.youtube.com/live/wFCx3GuQxSU?si=ac4-8abPltELYw7c&t=160",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:35:54.463Z"
+  },
+  {
+    "rule": "랭크 피시",
+    "map": "만새기 리조트&스파",
+    "url": "https://www.youtube.com/live/wFCx3GuQxSU?si=ac4-8abPltELYw7c&t=160",
+    "channelName": "슝",
+    "createdAt": "2026-11-13T11:35:54.463Z"
   }
 ]
